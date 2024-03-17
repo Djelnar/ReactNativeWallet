@@ -1,11 +1,12 @@
+import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import React from 'react';
 import {Text, View} from 'react-native';
+import {RootParamsList} from '../..';
 
-interface Props {}
-export function Main(props: Props) {
+export function Main({route}: NativeStackScreenProps<RootParamsList, 'Main'>) {
   return (
     <View>
-      <Text>123</Text>
+      <Text>{route.params.key}</Text>
     </View>
   );
 }

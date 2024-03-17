@@ -1,10 +1,13 @@
+import {NavigationContainer} from '@react-navigation/native';
 import {PaperProvider} from 'react-native-paper';
 import {App} from './src';
 
 const Root = () => (
-  <PaperProvider>
-    <App />
-  </PaperProvider>
+  <NavigationContainer>
+    <PaperProvider>
+      <App />
+    </PaperProvider>
+  </NavigationContainer>
 );
 
 // eslint-disable-next-line import/no-default-export

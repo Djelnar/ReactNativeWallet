@@ -1,9 +1,11 @@
+import type {NativeStackScreenProps} from '@react-navigation/native-stack';
 import {nanoid} from 'nanoid/non-secure';
 import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {Alert, StyleSheet, View} from 'react-native';
 import ReactNativeBiometrics from 'react-native-biometrics';
 import EncryptedStorage from 'react-native-encrypted-storage';
 import {Button, MD3Theme, Text, useTheme} from 'react-native-paper';
+import {RootParamsList} from '../..';
 import {FaceIDIcon} from './face-id-svg';
 
 const makeStyles = (theme: MD3Theme) =>
@@ -25,7 +27,9 @@ const makeStyles = (theme: MD3Theme) =>
     },
   });
 
-export function Onboard() {
+export function Onboard({
+  navigation,
+}: NativeStackScreenProps<RootParamsList, 'Onboard'>) {
   const theme = useTheme();
   const styles = useMemo(() => makeStyles(theme), [theme]);
   const controller = useRef(
@@ -40,6 +44,7 @@ export function Onboard() {
     null,
   );
   const [canProceed, setCanProceed] = useState<boolean | null>(null);
+  const [keySaved, setKeySaved] = useState('');
 
   const [loaded, setLoaded] = useState(false);
 
@@ -75,6 +80,12 @@ export function Onboard() {
     startEffect();
   }, [startEffect]);
 
+  useEffect(() => {
+    if (canProceed) {
+      navigation.navigate('Main', {key: keySaved});
+    }
+  }, [canProceed, navigation, keySaved]);
+
   const setupBiometrics = useCallback(async () => {
     if (!biometricsAvailable || biometricsEnabled) return;
     try {
@@ -89,6 +100,7 @@ export function Onboard() {
         await EncryptedStorage.setItem('cryptoAppKey', key);
         setBiometricsEnabled(true);
         setCanProceed(true);
+        setKeySaved(key);
       }
     } catch (error) {
       Alert.alert(String(error));
@@ -105,7 +117,7 @@ export function Onboard() {
       }
       if (success) {
         const key = await EncryptedStorage.getItem('cryptoAppKey');
-        Alert.alert(key!);
+        setKeySaved(key!);
         setCanProceed(true);
       }
     } catch (error) {
