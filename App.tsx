@@ -1,2 +1,11 @@
+import {PaperProvider} from 'react-native-paper';
+import {App} from './src';
+
+const Root = () => (
+  <PaperProvider>
+    <App />
+  </PaperProvider>
+);
+
 // eslint-disable-next-line import/no-default-export
-export {App as default} from './src';
+export default Root;

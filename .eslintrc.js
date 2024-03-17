@@ -11,7 +11,6 @@ module.exports = configure({
     presets.typescript(),
   ],
   extend: {
-    extends: ['@react-native'],
     ignorePatterns: ['!**/*', 'node_modules'],
     rules: {
       '@typescript-eslint/no-unnecessary-condition': 'off',

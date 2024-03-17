@@ -1,37 +1,19 @@
 import React from 'react';
-import {
-  SafeAreaView,
-  ScrollView,
-  StatusBar,
-  Text,
-  useColorScheme,
-  View,
-} from 'react-native';
-import {Colors} from 'react-native/Libraries/NewAppScreen';
+import {SafeAreaView, StatusBar} from 'react-native';
+import {useTheme} from 'react-native-paper';
+import {Onboard} from './screens/onboard';
 
 export function App(): React.JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
-
-  const backgroundStyle = {
-    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
-  };
+  const theme = useTheme();
+  const backgroundColor = theme.colors.background;
 
   return (
-    <SafeAreaView style={backgroundStyle}>
+    <SafeAreaView style={{backgroundColor, flex: 1}}>
       <StatusBar
-        barStyle={isDarkMode ? 'light-content' : 'dark-content'}
-        backgroundColor={backgroundStyle.backgroundColor}
+        barStyle={theme.dark ? 'light-content' : 'dark-content'}
+        backgroundColor={backgroundColor}
       />
-      <ScrollView
-        contentInsetAdjustmentBehavior="automatic"
-        style={backgroundStyle}>
-        <View
-          style={{
-            backgroundColor: isDarkMode ? Colors.black : Colors.white,
-          }}>
-          <Text>123</Text>
-        </View>
-      </ScrollView>
+      <Onboard />
     </SafeAreaView>
   );
 }
