@@ -1,11 +1,10 @@
-import type {NativeStackScreenProps} from '@react-navigation/native-stack';
 import {nanoid} from 'nanoid/non-secure';
 import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {Alert, StyleSheet, View} from 'react-native';
 import ReactNativeBiometrics from 'react-native-biometrics';
 import EncryptedStorage from 'react-native-encrypted-storage';
 import {Button, MD3Theme, Text, useTheme} from 'react-native-paper';
-import {RootParamsList} from '../..';
+import {useLogin} from '../../shared/use-login';
 import {FaceIDIcon} from './face-id-svg';
 
 const makeStyles = (theme: MD3Theme) =>
@@ -27,9 +26,7 @@ const makeStyles = (theme: MD3Theme) =>
     },
   });
 
-export function Onboard({
-  navigation,
-}: NativeStackScreenProps<RootParamsList, 'Onboard'>) {
+export function Onboard() {
   const theme = useTheme();
   const styles = useMemo(() => makeStyles(theme), [theme]);
   const controller = useRef(
@@ -45,7 +42,7 @@ export function Onboard({
   );
   const [canProceed, setCanProceed] = useState<boolean | null>(null);
   const [keySaved, setKeySaved] = useState('');
-
+  const {setLoggedIn, setPasskey} = useLogin();
   const [loaded, setLoaded] = useState(false);
 
   const checkBiometricsAvailable = useCallback(async () => {
@@ -82,9 +79,10 @@ export function Onboard({
 
   useEffect(() => {
     if (canProceed) {
-      navigation.navigate('Main', {key: keySaved});
+      setPasskey(keySaved);
+      setLoggedIn(true);
     }
-  }, [canProceed, navigation, keySaved]);
+  }, [canProceed, setLoggedIn, setPasskey, keySaved]);
 
   const setupBiometrics = useCallback(async () => {
     if (!biometricsAvailable || biometricsEnabled) return;
@@ -99,10 +97,11 @@ export function Onboard({
         const key = nanoid(32);
         await EncryptedStorage.setItem('cryptoAppKey', key);
         setBiometricsEnabled(true);
-        setCanProceed(true);
         setKeySaved(key);
+        setCanProceed(true);
       }
     } catch (error) {
+      await EncryptedStorage.removeItem('cryptoAppKey');
       Alert.alert(String(error));
     }
   }, [biometricsAvailable, biometricsEnabled]);

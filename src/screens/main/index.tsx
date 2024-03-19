@@ -1,10 +1,9 @@
 import BottomSheet, {BottomSheetView} from '@gorhom/bottom-sheet';
-import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import React, {useCallback, useEffect, useRef, useState} from 'react';
 import {StyleSheet, Text, View} from 'react-native';
 import EncryptedStorage from 'react-native-encrypted-storage';
 import {MD3Theme, useTheme} from 'react-native-paper';
-import {RootParamsList} from '../..';
+import {useLogin} from '../../shared/use-login';
 import {ReactWallet} from './dummy-wallets';
 import {decryptWallet, encryptWallet} from './wallet-crypto';
 
@@ -33,28 +32,28 @@ const makeStyles = (theme: MD3Theme) =>
     },
   });
 
-export function Main({route}: NativeStackScreenProps<RootParamsList, 'Main'>) {
+export function Main() {
   const theme = useTheme();
   const styles = makeStyles(theme);
   const [wallets, setWallets] = useState<ReactWallet[]>([]);
   const bottomSheetRef = useRef<BottomSheet>(null);
-  const password = route.params.key;
+  const {passkey} = useLogin();
 
   const loadWallets = useCallback(async () => {
     let walletsBase64 = await EncryptedStorage.getItem('wallets');
     if (walletsBase64 == null) {
-      const emptyWallets = encryptWallet([], password);
+      const emptyWallets = encryptWallet([], passkey!);
       await EncryptedStorage.setItem('wallets', emptyWallets);
     }
     walletsBase64 = await EncryptedStorage.getItem('wallets');
-    const walletsData = decryptWallet(walletsBase64!, password);
+    const walletsData = decryptWallet(walletsBase64!, passkey!);
     setWallets(walletsData);
     if (walletsData.length === 0) {
       setTimeout(() => {
         bottomSheetRef.current?.expand();
       }, 100);
     }
-  }, [password]);
+  }, [passkey]);
 
   useEffect(() => {
     loadWallets();
@@ -62,7 +61,7 @@ export function Main({route}: NativeStackScreenProps<RootParamsList, 'Main'>) {
 
   return (
     <View style={styles.root}>
-      <Text>{route.params.key}</Text>
+      <Text>{passkey}</Text>
       <BottomSheet
         backgroundStyle={styles.sheetBackground}
         enablePanDownToClose

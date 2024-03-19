@@ -4,6 +4,7 @@ import {SafeAreaView, StatusBar} from 'react-native';
 import {useTheme} from 'react-native-paper';
 import {Main} from './screens/main';
 import {Onboard} from './screens/onboard';
+import {useLogin} from './shared/use-login';
 
 // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
 export type RootParamsList = {
@@ -18,6 +19,7 @@ const Stack = createNativeStackNavigator<RootParamsList>();
 export function App(): React.JSX.Element {
   const theme = useTheme();
   const backgroundColor = theme.colors.background;
+  const {loggedIn, passkey} = useLogin();
 
   return (
     <SafeAreaView style={{backgroundColor, flex: 1}}>
@@ -26,20 +28,23 @@ export function App(): React.JSX.Element {
         backgroundColor={backgroundColor}
       />
       <Stack.Navigator>
-        <Stack.Screen
-          name="Onboard"
-          component={Onboard}
-          options={{
-            headerShown: false,
-          }}
-        />
-        <Stack.Screen
-          name="Main"
-          component={Main}
-          options={{
-            headerShown: false,
-          }}
-        />
+        {loggedIn && passkey ? (
+          <Stack.Screen
+            name="Main"
+            component={Main}
+            options={{
+              headerShown: false,
+            }}
+          />
+        ) : (
+          <Stack.Screen
+            name="Onboard"
+            component={Onboard}
+            options={{
+              headerShown: false,
+            }}
+          />
+        )}
       </Stack.Navigator>
     </SafeAreaView>
   );
